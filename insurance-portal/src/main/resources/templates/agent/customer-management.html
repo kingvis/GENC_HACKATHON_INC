@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Management</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="navbar agent">
+    <span class="brand">Insurance Portal - Agent</span>
+    <span class="links">
+        <a th:href="@{/agent/home}">Home</a>
+        <a th:href="@{/agent/logout}">Log out</a>
+    </span>
+</div>
+
+<div class="container">
+    <h2>Customer Management</h2>
+
+    <div class="card">
+        <h3>Search customers</h3>
+        <form th:action="@{/agent/customers/search}" method="post">
+            <input type="text" name="query" placeholder="Search by name or username"
+                   th:value="${searchQuery}" style="max-width: 320px; display: inline-block;">
+            <button type="submit" class="btn btn-agent">Search</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Customers</h3>
+        <table th:if="${not #lists.isEmpty(customers)}">
+            <thead>
+            <tr><th>ID</th><th>Full Name</th><th>Username</th><th>Segment</th><th>Correlation ID</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${customers}">
+                <td th:text="${c.id}"></td>
+                <td th:text="${c.fullName}"></td>
+                <td th:text="${c.username}"></td>
+                <td><span class="badge badge-info" th:text="${c.customerSegment}"></span></td>
+                <td th:text="${c.correlationId ?: 'not yet assigned'}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="muted" th:if="${#lists.isEmpty(customers)}">No customers found.</p>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Claim Review</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="navbar agent">
+    <span class="brand">Insurance Portal - Agent</span>
+    <span class="links">
+        <a th:href="@{/agent/home}">Home</a>
+        <a th:href="@{/agent/logout}">Log out</a>
+    </span>
+</div>
+
+<div class="container">
+    <h2>Claim Review</h2>
+
+    <div class="card">
+        <table th:if="${not #lists.isEmpty(claims)}">
+            <thead>
+            <tr><th>Claim ID</th><th>Customer</th><th>Type</th><th>Amount</th><th>Status</th><th>Decision</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="c : ${claims}">
+                <td th:text="${c.claimId}"></td>
+                <td th:text="${c.customer.fullName}"></td>
+                <td th:text="${c.claimType}"></td>
+                <td th:text="${c.claimAmount}"></td>
+                <td><span class="badge badge-info" th:text="${c.claimStatus}"></span></td>
+                <td th:text="${c.claimDecision}"></td>
+                <td>
+                    <form th:action="@{/agent/claims/{id}/review(id=${c.claimId})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-secondary btn-sm">Review</button>
+                    </form>
+                    <form th:action="@{/agent/claims/{id}/approve(id=${c.claimId})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-agent btn-sm">Approve</button>
+                    </form>
+                    <form th:action="@{/agent/claims/{id}/reject(id=${c.claimId})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-danger btn-sm">Reject</button>
+                    </form>
+                    <form th:action="@{/agent/claims/{id}/settle(id=${c.claimId})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-customer btn-sm">Settle</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="muted" th:if="${#lists.isEmpty(claims)}">No claims filed yet.</p>
+    </div>
+</div>
+</body>
+</html>

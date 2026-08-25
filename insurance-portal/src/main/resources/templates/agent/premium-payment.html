@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Premium Payment</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="navbar agent">
+    <span class="brand">Insurance Portal - Agent</span>
+    <span class="links">
+        <a th:href="@{/agent/home}">Home</a>
+        <a th:href="@{/agent/logout}">Log out</a>
+    </span>
+</div>
+
+<div class="container">
+    <h2>Premium Payment</h2>
+
+    <div class="card">
+        <h3>Record a manual payment</h3>
+        <p class="small-note">Use this when a customer pays over the phone or in person - it's recorded directly and always succeeds (unlike the customer's self-service payment, which goes through the simulated gateway and can fail).</p>
+        <form th:action="@{/agent/payments/record}" method="post">
+            <label for="policyId">Policy</label>
+            <select id="policyId" name="policyId">
+                <option th:each="p : ${policies}" th:value="${p.policyId}"
+                        th:text="${p.policyId + ' - ' + p.customer.fullName + ' - ' + p.policyType}"></option>
+            </select>
+
+            <label for="amount">Amount</label>
+            <input type="number" id="amount" name="amount" step="0.01" min="1" value="5000" required>
+
+            <button type="submit" class="btn btn-agent" style="margin-top: 14px;">Record payment</button>
+        </form>
+    </div>
+
+    <div class="card">
+        <h3>Payment history</h3>
+        <table th:if="${not #lists.isEmpty(payments)}">
+            <thead>
+            <tr><th>Payment ID</th><th>Customer</th><th>Amount</th><th>Method</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="pay : ${payments}">
+                <td th:text="${pay.paymentId}"></td>
+                <td th:text="${pay.customer.fullName}"></td>
+                <td th:text="${pay.amount}"></td>
+                <td th:text="${pay.paymentMethod}"></td>
+                <td>
+                    <span th:if="${pay.status == 'SUCCESS'}" class="badge badge-success" th:text="${pay.status}"></span>
+                    <span th:if="${pay.status == 'FAILED'}" class="badge badge-failed" th:text="${pay.status}"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="muted" th:if="${#lists.isEmpty(payments)}">No payments recorded yet.</p>
+    </div>
+</div>
+</body>
+</html>

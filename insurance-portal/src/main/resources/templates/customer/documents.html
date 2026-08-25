@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Document Downloads</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="navbar customer">
+    <span class="brand">Insurance Portal - Customer</span>
+    <span class="links">
+        <a th:href="@{/customer/home}">Home</a>
+        <a th:href="@{/customer/logout}">Log out</a>
+    </span>
+</div>
+
+<div class="container">
+    <h2>Document Downloads</h2>
+
+    <div class="card">
+        <table th:if="${not #lists.isEmpty(policies)}">
+            <thead>
+            <tr><th>Policy ID</th><th>Type</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${policies}">
+                <td th:text="${p.policyId}"></td>
+                <td th:text="${p.policyType}"></td>
+                <td th:text="${p.status}"></td>
+                <td>
+                    <a class="btn btn-customer btn-sm" th:href="@{/customer/documents/download/{id}(id=${p.policyId})}">
+                        Download certificate
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="muted" th:if="${#lists.isEmpty(policies)}">You need a policy before you can download a certificate.</p>
+    </div>
+</div>
+</body>
+</html>

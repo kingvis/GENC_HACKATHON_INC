@@ -1,0 +1,141 @@
+/* ===================================================================
+   Insurance Portal - Shared Stylesheet
+   Blue = customer areas, Teal = agent areas (matches the flowchart)
+   =================================================================== */
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f4f6f9;
+    color: #1f2937;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+/* --- Top navigation --- */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 24px;
+    color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+.navbar.customer { background: #1e3a8a; }
+.navbar.agent { background: #0f6e56; }
+.navbar a { color: white; text-decoration: none; margin-left: 18px; font-size: 14px; }
+.navbar a:hover { text-decoration: underline; }
+.navbar .brand { font-weight: 700; font-size: 17px; }
+.navbar .links { display: flex; align-items: center; }
+
+/* --- Cards --- */
+.card {
+    background: white;
+    border-radius: 10px;
+    padding: 22px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border: 1px solid #e5e7eb;
+}
+
+.card h2 { margin-top: 0; font-size: 19px; }
+.card h3 { font-size: 16px; color: #374151; }
+
+/* --- Feature tile grid (home pages) --- */
+.tile-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+}
+.tile {
+    display: block;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    text-decoration: none;
+    color: #1f2937;
+    border: 1px solid #e5e7eb;
+    transition: box-shadow 0.15s, transform 0.15s;
+}
+.tile:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.tile .tile-title { font-weight: 700; font-size: 16px; margin-bottom: 6px; }
+.tile.customer-tile { border-left: 4px solid #1e3a8a; }
+.tile.agent-tile { border-left: 4px solid #0f6e56; }
+.tile .tile-desc { font-size: 13px; color: #6b7280; }
+
+/* --- Buttons --- */
+.btn {
+    display: inline-block;
+    padding: 9px 16px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+.btn-customer { background: #2563eb; color: white; }
+.btn-customer:hover { background: #1d4ed8; }
+.btn-agent { background: #0f766e; color: white; }
+.btn-agent:hover { background: #0d5c56; }
+.btn-danger { background: #dc2626; color: white; }
+.btn-secondary { background: #e5e7eb; color: #1f2937; }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* --- Forms --- */
+label { display: block; font-size: 13px; font-weight: 600; margin: 10px 0 4px; color: #374151; }
+input[type=text], input[type=password], input[type=number], select {
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+form { margin-top: 8px; }
+
+/* --- Tables --- */
+table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
+th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid #e5e7eb; }
+th { color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; }
+
+/* --- Status badges --- */
+.badge { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.badge-success { background: #dcfce7; color: #166534; }
+.badge-failed { background: #fee2e2; color: #991b1b; }
+.badge-pending { background: #fef3c7; color: #92400e; }
+.badge-info { background: #dbeafe; color: #1e40af; }
+
+/* --- Alerts --- */
+.alert { padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; font-size: 14px; }
+.alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+.alert-error { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+/* --- Landing page ---- */
+.landing-hero { text-align: center; padding: 60px 24px; }
+.landing-hero h1 { font-size: 30px; margin-bottom: 8px; }
+.landing-hero p { color: #6b7280; margin-bottom: 32px; }
+.role-choice { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
+.role-card {
+    width: 260px;
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    text-decoration: none;
+    color: #1f2937;
+}
+.role-card.customer { border-top: 5px solid #1e3a8a; }
+.role-card.agent { border-top: 5px solid #0f6e56; }
+.role-card h3 { margin-top: 0; }
+.role-card p { font-size: 13px; color: #6b7280; }
+
+.muted { color: #6b7280; font-size: 13px; }
+.small-note { font-size: 12px; color: #9ca3af; margin-top: 6px; }

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Agent Home</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="navbar agent">
+    <span class="brand">Insurance Portal - Agent</span>
+    <span class="links">
+        <span th:text="${agentName}"></span>
+        <a th:href="@{/agent/logout}">Log out</a>
+    </span>
+</div>
+
+<div class="container">
+    <h2>Welcome, <span th:text="${agentName}"></span></h2>
+
+    <div class="tile-grid">
+        <a class="tile agent-tile" th:href="@{/agent/customers}">
+            <div class="tile-title">1. Customer Management</div>
+            <div class="tile-desc">View customers, search customers, view their policies</div>
+        </a>
+        <a class="tile agent-tile" th:href="@{/agent/policies}">
+            <div class="tile-title">2. Policy Management</div>
+            <div class="tile-desc">Create policy, approve policy, renew policy</div>
+        </a>
+        <a class="tile agent-tile" th:href="@{/agent/payments}">
+            <div class="tile-title">3. Premium Payment</div>
+            <div class="tile-desc">View customer premiums, record manual payment, history</div>
+        </a>
+        <a class="tile agent-tile" th:href="@{/agent/claims}">
+            <div class="tile-title">4. Claim Review</div>
+            <div class="tile-desc">Review, approve, reject, or settle claims</div>
+        </a>
+        <a class="tile agent-tile" th:href="@{/agent/reports}">
+            <div class="tile-title">5. Reports</div>
+            <div class="tile-desc">Customer, policy, and claims reports</div>
+        </a>
+    </div>
+</div>
+</body>
+</html>

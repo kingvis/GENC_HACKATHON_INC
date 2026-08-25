@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Policy Management</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="navbar agent">
+    <span class="brand">Insurance Portal - Agent</span>
+    <span class="links">
+        <a th:href="@{/agent/home}">Home</a>
+        <a th:href="@{/agent/logout}">Log out</a>
+    </span>
+</div>
+
+<div class="container">
+    <h2>Policy Management</h2>
+
+    <div class="card">
+        <h3>Create a policy for a customer</h3>
+        <form th:action="@{/agent/policies/create}" method="post">
+            <label for="customerId">Customer</label>
+            <select id="customerId" name="customerId">
+                <option th:each="c : ${customers}" th:value="${c.id}"
+                        th:text="${c.fullName + ' (' + c.username + ')'}"></option>
+            </select>
+
+            <label for="policyType">Policy type</label>
+            <select id="policyType" name="policyType">
+                <option value="HEALTH">Health</option>
+                <option value="LIFE">Life</option>
+                <option value="AUTO">Auto</option>
+                <option value="HOME">Home</option>
+                <option value="TRAVEL">Travel</option>
+            </select>
+
+            <label for="premiumAmount">Premium amount</label>
+            <input type="number" id="premiumAmount" name="premiumAmount" step="0.01" min="1" value="5000" required>
+
+            <button type="submit" class="btn btn-agent" style="margin-top: 14px;">Create policy</button>
+        </form>
+        <p class="small-note">Policies created here are marked ACTIVE immediately (agent-created). Self-purchased customer policies start as PENDING_APPROVAL until approved below.</p>
+    </div>
+
+    <div class="card">
+        <h3>All policies</h3>
+        <table th:if="${not #lists.isEmpty(policies)}">
+            <thead>
+            <tr><th>Policy ID</th><th>Customer</th><th>Type</th><th>Premium</th><th>Status</th><th>Renewal</th><th>Actions</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${policies}">
+                <td th:text="${p.policyId}"></td>
+                <td th:text="${p.customer.fullName}"></td>
+                <td th:text="${p.policyType}"></td>
+                <td th:text="${p.premiumAmount}"></td>
+                <td>
+                    <span class="badge badge-pending" th:if="${p.status == 'PENDING_APPROVAL'}" th:text="${p.status}"></span>
+                    <span class="badge badge-success" th:if="${p.status != 'PENDING_APPROVAL'}" th:text="${p.status}"></span>
+                </td>
+                <td th:text="${p.renewalDate}"></td>
+                <td>
+                    <form th:if="${p.status == 'PENDING_APPROVAL'}" th:action="@{/agent/policies/{id}/approve(id=${p.policyId})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-agent btn-sm">Approve</button>
+                    </form>
+                    <form th:action="@{/agent/policies/{id}/renew(id=${p.policyId})}" method="post" style="display:inline;">
+                        <button type="submit" class="btn btn-secondary btn-sm">Renew</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="muted" th:if="${#lists.isEmpty(policies)}">No policies yet.</p>
+    </div>
+</div>
+</body>
+</html>

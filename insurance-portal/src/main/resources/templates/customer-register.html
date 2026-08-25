@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Account</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container" style="max-width: 420px; margin-top: 60px;">
+    <div class="card">
+        <h2>Create your account</h2>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <form th:action="@{/customer/register}" method="post">
+            <label for="fullName">Full name</label>
+            <input type="text" id="fullName" name="fullName" required autofocus>
+
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit" class="btn btn-customer" style="margin-top: 18px; width: 100%;">Create account</button>
+        </form>
+
+        <p class="muted" style="margin-top: 16px;">
+            Already have an account? <a th:href="@{/customer/login}">Log in</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

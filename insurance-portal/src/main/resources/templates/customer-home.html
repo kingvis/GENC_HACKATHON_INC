@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Customer Home</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="navbar customer">
+    <span class="brand">Insurance Portal - Customer</span>
+    <span class="links">
+        <span th:text="${customer.fullName}"></span>
+        <a th:href="@{/customer/logout}">Log out</a>
+    </span>
+</div>
+
+<div class="container">
+    <h2>Welcome, <span th:text="${customer.fullName}"></span></h2>
+    <p class="muted">Segment: <span th:text="${customer.customerSegment}"></span></p>
+
+    <div class="tile-grid">
+        <a class="tile customer-tile" th:href="@{/customer/policies}">
+            <div class="tile-title">1. My Policies</div>
+            <div class="tile-desc">View policies, view details, download policy</div>
+        </a>
+        <a class="tile customer-tile" th:href="@{/customer/claims}">
+            <div class="tile-title">2. Claim Management</div>
+            <div class="tile-desc">Raise a claim, upload documents, track claim status</div>
+        </a>
+        <a class="tile customer-tile" th:href="@{/customer/payments}">
+            <div class="tile-title">3. Premium Payments</div>
+            <div class="tile-desc">View due premiums, pay premium, payment history</div>
+        </a>
+        <a class="tile customer-tile" th:href="@{/customer/documents}">
+            <div class="tile-title">4. Document Downloads</div>
+            <div class="tile-desc">Download your policy certificate</div>
+        </a>
+    </div>
+</div>
+</body>
+</html>

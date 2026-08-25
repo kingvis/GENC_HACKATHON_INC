@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Reports</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="navbar agent">
+    <span class="brand">Insurance Portal - Agent</span>
+    <span class="links">
+        <a th:href="@{/agent/home}">Home</a>
+        <a th:href="@{/agent/logout}">Log out</a>
+    </span>
+</div>
+
+<div class="container">
+    <h2>Reports</h2>
+
+    <div class="tile-grid">
+        <div class="card">
+            <h3>Customers</h3>
+            <p style="font-size: 28px; font-weight: 700; margin: 0;" th:text="${report.totalCustomers}"></p>
+            <p class="muted">Total registered customers</p>
+        </div>
+        <div class="card">
+            <h3>Policies</h3>
+            <p style="font-size: 28px; font-weight: 700; margin: 0;" th:text="${report.totalPolicies}"></p>
+            <p class="muted"><span th:text="${report.activePolicies}"></span> active</p>
+        </div>
+        <div class="card">
+            <h3>Claims</h3>
+            <p style="font-size: 28px; font-weight: 700; margin: 0;" th:text="${report.totalClaims}"></p>
+            <p class="muted"><span th:text="${report.openClaims}"></span> open, <span th:text="${report.settledClaims}"></span> settled</p>
+        </div>
+        <div class="card">
+            <h3>Payments</h3>
+            <p style="font-size: 28px; font-weight: 700; margin: 0;" th:text="${report.totalPayments}"></p>
+            <p class="muted"><span th:text="${report.failedPayments}"></span> failed</p>
+        </div>
+    </div>
+
+    <p class="small-note">This page itself generates a "Report Generated" log line each time it loads - useful for demonstrating how even read-only/reporting actions feed the monitoring pipeline.</p>
+</div>
+</body>
+</html>

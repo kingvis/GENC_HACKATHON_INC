@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Insurance Portal</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="landing-hero">
+    <h1>Insurance Portal</h1>
+    <p>Prototype build - every action here generates a structured log line for the monitoring app.</p>
+
+    <div class="role-choice">
+        <a class="role-card customer" th:href="@{/customer/login}">
+            <h3>Customer</h3>
+            <p>View policies, track claims, pay premiums, and download documents.</p>
+        </a>
+        <a class="role-card agent" th:href="@{/agent/login}">
+            <h3>Agent</h3>
+            <p>Manage customers, policies, claims, payments, and reports.</p>
+        </a>
+    </div>
+
+    <p class="small-note">New customer? You can register from the customer login page.</p>
+</div>
+</body>
+</html>

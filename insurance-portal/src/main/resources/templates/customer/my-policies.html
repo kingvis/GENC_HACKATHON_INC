@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>My Policies</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="navbar customer">
+    <span class="brand">Insurance Portal - Customer</span>
+    <span class="links">
+        <a th:href="@{/customer/home}">Home</a>
+        <a th:href="@{/customer/logout}">Log out</a>
+    </span>
+</div>
+
+<div class="container">
+    <h2>My Policies</h2>
+
+    <div class="card">
+        <h3>Your policies</h3>
+        <table th:if="${not #lists.isEmpty(policies)}">
+            <thead>
+            <tr><th>Policy ID</th><th>Type</th><th>Premium</th><th>Status</th><th>Renewal date</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="p : ${policies}">
+                <td th:text="${p.policyId}"></td>
+                <td th:text="${p.policyType}"></td>
+                <td th:text="${p.premiumAmount}"></td>
+                <td><span class="badge badge-info" th:text="${p.status}"></span></td>
+                <td th:text="${p.renewalDate}"></td>
+            </tr>
+            </tbody>
+        </table>
+        <p class="muted" th:if="${#lists.isEmpty(policies)}">You don't have any policies yet - buy one below.</p>
+    </div>
+
+    <div class="card">
+        <h3>Buy a new policy</h3>
+        <form th:action="@{/customer/policies/buy}" method="post">
+            <label for="policyType">Policy type</label>
+            <select id="policyType" name="policyType">
+                <option value="HEALTH">Health</option>
+                <option value="LIFE">Life</option>
+                <option value="AUTO">Auto</option>
+                <option value="HOME">Home</option>
+                <option value="TRAVEL">Travel</option>
+            </select>
+
+            <label for="premiumAmount">Premium amount</label>
+            <input type="number" id="premiumAmount" name="premiumAmount" step="0.01" min="1" value="5000" required>
+
+            <button type="submit" class="btn btn-customer" style="margin-top: 14px;">Buy policy</button>
+        </form>
+        <p class="small-note">A new policy created here will need agent approval to become fully ACTIVE (see the flowchart's Policy Approval step).</p>
+    </div>
+</div>
+</body>
+</html>
