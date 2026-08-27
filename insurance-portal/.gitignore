@@ -20,6 +20,9 @@ logs/
 .project
 .factorypath
 
+# Environment / secrets (Supabase DB password, etc.)
+.env
+
 # OS
 .DS_Store
 Thumbs.db

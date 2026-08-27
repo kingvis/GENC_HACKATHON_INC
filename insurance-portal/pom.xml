@@ -53,11 +53,18 @@
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
 
-        <!-- Embedded file-based database - zero install, persists to disk -->
+        <!-- Primary database: Supabase (PostgreSQL) -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Kept for local tests only - the running app now uses Supabase/Postgres -->
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <scope>test</scope>
         </dependency>
 
         <!-- Reduces entity/DTO boilerplate (getters, setters, constructors) -->
