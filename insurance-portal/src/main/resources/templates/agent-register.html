@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Agent Account</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+<div class="container" style="max-width: 420px; margin-top: 60px;">
+    <div class="card">
+        <h2>Create your agent account</h2>
+        <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
+
+        <form th:action="@{/agent/register}" method="post">
+            <label for="fullName">Full name</label>
+            <input type="text" id="fullName" name="fullName" required autofocus>
+
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required>
+
+            <button type="submit" class="btn btn-agent" style="margin-top: 18px; width: 100%;">Create account</button>
+        </form>
+
+        <p class="muted" style="margin-top: 16px;">
+            Already have an account? <a th:href="@{/agent/login}">Log in</a>
+        </p>
+        <p class="small-note">
+            Your agent code is generated automatically once your account is created.
+        </p>
+    </div>
+</div>
+</body>
+</html>

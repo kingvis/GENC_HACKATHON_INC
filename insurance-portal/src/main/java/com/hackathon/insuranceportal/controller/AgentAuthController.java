@@ -45,6 +45,25 @@ public class AgentAuthController {
         }
     }
 
+    @GetMapping("/register")
+    public String registerPage() {
+        return "agent-register";
+    }
+
+    @PostMapping("/register")
+    public String register(@RequestParam String email,
+                            @RequestParam String password,
+                            @RequestParam String fullName,
+                            Model model) {
+        try {
+            authService.registerAgent(email, password, fullName);
+            return "redirect:/agent/login?registered=true";
+        } catch (InvalidCredentialsException e) {
+            model.addAttribute("error", e.getMessage());
+            return "agent-register";
+        }
+    }
+
     @GetMapping("/logout")
     public String logout(HttpServletRequest request) {
         HttpSession session = request.getSession(false);

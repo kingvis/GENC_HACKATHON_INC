@@ -9,6 +9,10 @@
 <div class="container" style="max-width: 420px; margin-top: 60px;">
     <div class="card">
         <h2>Agent login</h2>
+
+        <div class="alert alert-success" th:if="${param.registered}">
+            Agent account created. You can log in now.
+        </div>
         <div class="alert alert-error" th:if="${error}" th:text="${error}"></div>
 
         <form th:action="@{/agent/login}" method="post">
@@ -21,7 +25,10 @@
             <button type="submit" class="btn btn-agent" style="margin-top: 18px; width: 100%;">Log in</button>
         </form>
 
-        <p class="small-note" style="margin-top: 16px;">
+        <p class="muted" style="margin-top: 16px;">
+            New agent? <a th:href="@{/agent/register}">Create an account</a>
+        </p>
+        <p class="small-note">
             Demo account: agent@company.com / agent123
         </p>
         <p><a th:href="@{/}" class="muted">&larr; Back to home</a></p>

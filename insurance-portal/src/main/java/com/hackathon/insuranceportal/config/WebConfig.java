@@ -15,6 +15,6 @@ public class WebConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(new SessionAuthInterceptor("agentId", "/agent/login"))
                 .addPathPatterns("/agent/**")
-                .excludePathPatterns("/agent/login");
+                .excludePathPatterns("/agent/login", "/agent/register");
     }
 }

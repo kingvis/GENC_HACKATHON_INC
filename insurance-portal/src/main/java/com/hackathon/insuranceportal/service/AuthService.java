@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Handles login for both roles and self-service customer registration.
@@ -48,6 +49,32 @@ public class AuthService {
         customer.setPassword(password);
         customer.setFullName(fullName);
         return customerRepository.save(customer);
+    }
+
+    /**
+     * Registers a new agent. Agents sign in with an email, so the email is the
+     * unique credential; a human-readable agent code (used in log lines, e.g.
+     * "agent-742") is generated automatically and guaranteed unique.
+     */
+    public Agent registerAgent(String email, String password, String fullName) {
+        if (agentRepository.existsByEmail(email)) {
+            throw new InvalidCredentialsException("EMAIL_TAKEN", "An agent with that email already exists");
+        }
+        Agent agent = new Agent();
+        agent.setEmail(email);
+        agent.setPassword(password);
+        agent.setFullName(fullName);
+        agent.setAgentCode(generateUniqueAgentCode());
+        return agentRepository.save(agent);
+    }
+
+    /** Generates an "agent-<n>" code that isn't already taken. */
+    private String generateUniqueAgentCode() {
+        String code;
+        do {
+            code = "agent-" + ThreadLocalRandom.current().nextInt(100, 10_000);
+        } while (agentRepository.existsByAgentCode(code));
+        return code;
     }
 
     public Customer loginCustomer(String username, String password, String sessionId,
