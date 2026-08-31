@@ -17,6 +17,17 @@ public final class IdGenerator {
     private IdGenerator() {
     }
 
+    /**
+     * Raises the shared counter so it starts above the highest id already in
+     * the database. Called once at startup (see IdSequenceInitializer) so that
+     * ids generated after a restart - or after a bulk data import - never
+     * collide with existing rows. Never lowers the counter, so it is safe to
+     * call repeatedly and from concurrent callers.
+     */
+    public static void seedAtLeast(long value) {
+        sequence.updateAndGet(current -> Math.max(current, value));
+    }
+
     public static String nextCorrelationId() {
         return "CORR-" + YEAR + "-" + pad(sequence.incrementAndGet());
     }
