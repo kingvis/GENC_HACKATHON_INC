@@ -88,6 +88,31 @@ Stop the app with **Ctrl+C**.
 
 ---
 
+## Optional: preload the sample dataset
+
+The repo ships with historical reference logs (`logs/combined_service.log`).
+If you want your tables pre-filled with that dataset (~200 customers, 200
+policies, 200 claims, 338 payments) so your monitoring project has data to work
+with immediately, run the app **once** with the importer flag:
+
+```bash
+mvn spring-boot:run "-Dspring-boot.run.arguments=--app.import-logs=true"
+```
+
+It uses the **same** database connection from your `.env` — no extra keys. It:
+- collapses the raw event stream into one row per customer/policy/claim/payment,
+- fills in the fields logs don't carry (imported customers log in as
+  `cust-<code>` / `password123`),
+- is **collision-safe** (remaps any id that clashes with your seeded demo data),
+- is **idempotent** — run it again and it detects the data is already there and
+  does nothing.
+
+After that one run, start the app normally (without the flag). See
+[`insurance-portal/src/main/java/.../config/LogImporter.java`](insurance-portal/src/main/java/com/hackathon/insuranceportal/config/LogImporter.java)
+for exactly what it does.
+
+---
+
 ## Troubleshooting
 
 | Message in the terminal | Cause | Fix |
