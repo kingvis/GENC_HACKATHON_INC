@@ -17,6 +17,27 @@ below for why, if you're curious.
 ### Requirements
 - Java 17 or newer (JDK, not just a JRE)
 - Maven 3.8+ (or just use your IDE's built-in Maven support)
+- A free [Supabase](https://supabase.com) project (this app stores its data in
+  Postgres). You use **your own** project - see the one-time setup below.
+
+### One-time database setup
+
+The app connects to **your own** Supabase project, so your data and logs are
+yours. Nobody shares a database.
+
+1. Create a free project at https://supabase.com (an empty project is fine -
+   the app creates all its tables automatically on first run).
+2. Copy the example env file and fill in your project's connection details:
+   ```bash
+   cp .env.example .env
+   ```
+   Then edit `.env` and set `SUPABASE_DB_URL`, `SUPABASE_DB_USER`, and
+   `SUPABASE_DB_PASSWORD` - `.env.example` explains exactly where each value
+   comes from in the Supabase dashboard. `.env` is gitignored and never
+   committed.
+
+That's it - `application.properties` auto-loads `.env` on startup, so you don't
+need to export any shell variables.
 
 ### Run it
 
@@ -34,6 +55,13 @@ mvn spring-boot:run
 ```
 
 Either way, once it's running, open **http://localhost:8080** in your browser.
+Every action you take appends a JSON log line to `logs/app.log` in real time -
+`tail -f logs/app.log` to watch it live.
+
+> **Sharing this app?** Everyone who clones it just does the one-time database
+> setup above with their *own* Supabase project. The code carries no secrets,
+> and each person's actions/logs go to their own database + their own local
+> `logs/app.log`.
 
 ### Demo credentials
 
@@ -206,7 +234,7 @@ insurance-portal/
 │   │   ├── customer/                     My Policies, Claim Management, Payments, Documents
 │   │   └── agent/                        Customer Mgmt, Policy Mgmt, Payment, Claim Review, Reports
 │   └── static/css/style.css
-└── data/                                  H2 database file (created on first run, gitignored)
+└── .env.example                           Copy to .env and add your Supabase creds
 ```
 
 ---
@@ -219,7 +247,7 @@ oversights - see the reasoning if you're deciding whether to change them:
 | Decision | Why |
 |---|---|
 | **One monolithic app**, not 4 microservices | Four services means a gateway, inter-service HTTP calls, and correlation-ID propagation across network boundaries - all setup cost with no demo-visible payoff at this stage. |
-| **H2 in file mode**, not MySQL/SQLite | Zero install, real SQL/JPA, and - importantly - **persists across restarts** because it's configured with `jdbc:h2:file:./data/hackathondb` rather than the in-memory default. Browse it live at `http://localhost:8080/h2-console` (JDBC URL: `jdbc:h2:file:./data/hackathondb`). |
+| **Supabase (hosted Postgres)**, not a local embedded DB | Real managed Postgres with zero local install, persists across restarts, and lets each person run the app against their own free cloud database by just filling in a `.env`. (Earlier iterations used embedded H2; H2 is now kept only as a test-scope dependency.) |
 | **Session-based auth**, not Spring Security/JWT | A plain `HttpSession` + a lightweight interceptor is enough to demo role-based access convincingly, without the configuration overhead of Spring Security. |
 | **Explicit `LogWriter.write(...)` calls**, not AOP/aspect-based auto-logging | Easier to read, debug, and modify under time pressure - you can see exactly what gets logged and why by reading the service method, instead of tracing through aspect weaving. |
 | **`correlation_id` generated at first policy creation**, not at login | Matches the reference log data: it traces a customer's entire relationship with the company, not a single browser session. |
