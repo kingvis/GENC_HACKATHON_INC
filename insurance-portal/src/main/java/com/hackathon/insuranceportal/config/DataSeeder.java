@@ -7,7 +7,6 @@ import com.hackathon.insuranceportal.repository.CustomerRepository;
 import com.hackathon.insuranceportal.service.ClaimService;
 import com.hackathon.insuranceportal.service.PolicyService;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -23,7 +22,6 @@ import java.math.BigDecimal;
  *   Agent:    agent@company.com / agent123
  */
 @Component
-@Order(1)
 public class DataSeeder implements CommandLineRunner {
 
     private final CustomerRepository customerRepository;

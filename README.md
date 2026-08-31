@@ -88,28 +88,34 @@ Stop the app with **Ctrl+C**.
 
 ---
 
-## Optional: preload the sample dataset
+## Optional: load a sample dataset from logs (standalone, one-time)
 
-The repo ships with historical reference logs (`logs/combined_service.log`).
-If you want your tables pre-filled with that dataset (~200 customers, 200
-policies, 200 claims, 338 payments) so your monitoring project has data to work
-with immediately, run the app **once** with the importer flag:
+This is a **separate command-line utility** — it is **not** part of the running
+app and never runs during normal startup. Use it once, by hand, if you want to
+pre-fill your tables from a JSON-lines event log so your monitoring project has
+data to work with.
+
+**You supply the path to the log file.** Run it from the `insurance-portal/`
+folder (so it can read your `.env`):
 
 ```bash
-mvn spring-boot:run "-Dspring-boot.run.arguments=--app.import-logs=true"
+# macOS / Linux / Git Bash
+mvn compile exec:java -Dexec.args="../logs/combined_service.log"
+
+# Windows PowerShell (quote the whole -D argument)
+mvn compile exec:java "-Dexec.args=../logs/combined_service.log"
 ```
 
-It uses the **same** database connection from your `.env` — no extra keys. It:
+Point `-Dexec.args` at any log file you want to load. The tool:
+- uses the **same database connection from your `.env`** — no extra keys,
 - collapses the raw event stream into one row per customer/policy/claim/payment,
 - fills in the fields logs don't carry (imported customers log in as
   `cust-<code>` / `password123`),
-- is **collision-safe** (remaps any id that clashes with your seeded demo data),
-- is **idempotent** — run it again and it detects the data is already there and
-  does nothing.
+- is **collision-safe** (remaps any id that clashes with existing rows),
+- is **idempotent** (detects an already-loaded dataset and stops),
+- runs in a **single transaction** (all-or-nothing).
 
-After that one run, start the app normally (without the flag). See
-[`insurance-portal/src/main/java/.../config/LogImporter.java`](insurance-portal/src/main/java/com/hackathon/insuranceportal/config/LogImporter.java)
-for exactly what it does.
+Source: [`insurance-portal/src/main/java/.../tools/LogLoader.java`](insurance-portal/src/main/java/com/hackathon/insuranceportal/tools/LogLoader.java).
 
 ---
 
