@@ -1,0 +1,34 @@
+# ===================================================================
+# Repo-root ignores (the Spring project also has insurance-portal/.gitignore)
+# ===================================================================
+
+# Build output
+target/
+*.class
+
+# Old embedded H2 database (the app uses Supabase/Postgres now)
+data/
+*.mv.db
+*.trace.db
+
+# Generated runtime logs.
+# NOTE: the historical reference logs under logs/ (combined_service.log,
+# *_service.log) are committed intentionally and kept - only the app's own
+# generated app.log and one-off run logs are ignored.
+/logs/app.log
+run-output.log
+*-test.log
+*-test.err
+
+# Secrets / local env
+.env
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+.DS_Store
+Thumbs.db
