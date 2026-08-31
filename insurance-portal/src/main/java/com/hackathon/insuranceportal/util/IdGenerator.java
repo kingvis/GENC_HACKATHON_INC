@@ -1,6 +1,5 @@
 package com.hackathon.insuranceportal.util;
 
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -45,7 +44,7 @@ public final class IdGenerator {
     }
 
     public static String nextTransactionId() {
-        return "TXN-" + (1_000_000 + ThreadLocalRandom.current().nextInt(900_000));
+        return "TXN-" + pad(sequence.incrementAndGet());
     }
 
     public static String nextProposalId() {

@@ -28,7 +28,8 @@ public class IdSequenceInitializer implements ApplicationRunner {
               COALESCE((SELECT MAX(regexp_replace(correlation_id,'^.*[^0-9]','')::bigint) FROM customers WHERE correlation_id ~ '[0-9]$'),0),
               COALESCE((SELECT MAX(regexp_replace(claim_id,      '^.*[^0-9]','')::bigint) FROM claims    WHERE claim_id      ~ '[0-9]$'),0),
               COALESCE((SELECT MAX(regexp_replace(policy_id,     '^.*[^0-9]','')::bigint) FROM policies  WHERE policy_id     ~ '[0-9]$'),0),
-              COALESCE((SELECT MAX(regexp_replace(payment_id,    '^.*[^0-9]','')::bigint) FROM payments  WHERE payment_id    ~ '[0-9]$'),0)
+              COALESCE((SELECT MAX(regexp_replace(payment_id,    '^.*[^0-9]','')::bigint) FROM payments  WHERE payment_id    ~ '[0-9]$'),0),
+              COALESCE((SELECT MAX(regexp_replace(transaction_id,'^.*[^0-9]','')::bigint) FROM payments  WHERE transaction_id ~ '[0-9]$'),0)
             )
             """;
 
