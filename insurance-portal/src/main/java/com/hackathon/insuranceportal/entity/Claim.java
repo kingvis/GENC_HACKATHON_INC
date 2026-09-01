@@ -53,4 +53,18 @@ public class Claim {
 
     @Column(nullable = false)
     private LocalDateTime submittedAt = LocalDateTime.now();
+
+    /**
+     * Last time this claim changed. Set on insert and refreshed automatically
+     * on every update (e.g. each status/decision transition) by the JPA
+     * lifecycle callback below - callers never set it by hand.
+     */
+    @Column(nullable = false)
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @PrePersist
+    @PreUpdate
+    private void touchUpdatedAt() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }
