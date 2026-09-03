@@ -3,26 +3,32 @@ package com.hackathon.insuranceportal.config;
 import com.hackathon.insuranceportal.util.IdGenerator;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
+import org.springframework.core.annotation.Order;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * At startup, advances {@link IdGenerator}'s counter past the highest business
- * id already stored in the database.
+ * At startup, wires {@link IdGenerator} to a single shared Postgres sequence
+ * (app_id_seq) so business IDs are unique across ALL running app instances -
+ * essential now that several people can run the app against the same shared
+ * Supabase project at once. A database sequence hands out numbers atomically,
+ * so two instances can never produce the same ID.
  *
- * Why this is needed: IdGenerator's counter lives in memory and resets on every
- * restart. Without this, after a restart (or after importing historical data)
- * it would regenerate ids like CORR-2026-000101 / CLM-2026-000101 that already
- * exist, causing "duplicate key" errors the first time a user creates a policy,
- * claim, or payment. Seeding it above the current maximum guarantees new ids
- * never collide with existing rows.
+ * The sequence is created once, seeded above the highest existing ID, and then
+ * only ever advanced via nextval() - it is never reset, so restarts and
+ * concurrent instances stay safe.
  *
- * The query extracts the trailing digit-run of each id (the part the counter
- * produces) and takes the overall maximum across the tables.
+ * On a non-Postgres database (the H2-backed unit tests) it does nothing and
+ * IdGenerator falls back to its in-memory counter.
  */
 @Component
+@Order(1)
 public class IdSequenceInitializer implements ApplicationRunner {
 
+    private static final String SEQ = "app_id_seq";
+
+    /** Highest numeric suffix already used across every business-id column. */
     private static final String MAX_SQL = """
             SELECT GREATEST(
               COALESCE((SELECT MAX(regexp_replace(correlation_id,'^.*[^0-9]','')::bigint) FROM customers WHERE correlation_id ~ '[0-9]$'),0),
@@ -42,14 +48,23 @@ public class IdSequenceInitializer implements ApplicationRunner {
     @Override
     public void run(ApplicationArguments args) {
         try {
-            Long max = jdbc.queryForObject(MAX_SQL, Long.class);
-            long high = (max == null ? 0L : max);
-            IdGenerator.seedAtLeast(high + 1);
-            System.out.println("[IdSequenceInitializer] Seeded IdGenerator above existing max "
-                    + high + " - new ids start at " + (high + 1) + ".");
+            String product = jdbc.execute(
+                    (ConnectionCallback<String>) c -> c.getMetaData().getDatabaseProductName());
+            if (product != null && product.toLowerCase().contains("postgre")) {
+                Long max = jdbc.queryForObject(MAX_SQL, Long.class);
+                long start = (max == null ? 0L : max) + 1;
+                // Created once, seeded above the current max; a no-op if it already exists.
+                jdbc.execute("CREATE SEQUENCE IF NOT EXISTS " + SEQ + " START WITH " + start + " INCREMENT BY 1");
+                IdGenerator.enableSequence(jdbc, SEQ);
+                System.out.println("[IdSequenceInitializer] IDs now come from shared sequence '" + SEQ
+                        + "' - unique across all app instances.");
+            } else {
+                System.out.println("[IdSequenceInitializer] Non-Postgres database ("
+                        + product + "); using in-memory ID counter.");
+            }
         } catch (Exception e) {
-            System.err.println("[IdSequenceInitializer] Could not seed IdGenerator from the database: "
-                    + e.getMessage() + " - continuing with the default counter.");
+            System.err.println("[IdSequenceInitializer] Could not set up the shared ID sequence ("
+                    + e.getMessage() + "); falling back to the in-memory counter.");
         }
     }
 }
