@@ -38,7 +38,7 @@ public class CustomerLookupService {
                 .customerId(results.isEmpty() ? null : results.get(0).getId())
                 .eventType("Customer Looked Up")
                 .stage("CUSTOMER_LOOKUP")
-                .status(results.isEmpty() ? "FAILED" : "SUCCESS")
+                .status(results.isEmpty() ? "WARNING" : "SUCCESS")
                 .durationMs(System.currentTimeMillis() - start)
                 .error(results.isEmpty() ? "CUSTOMER_NOT_FOUND" : null)
                 .extra("agent_id", agentId)

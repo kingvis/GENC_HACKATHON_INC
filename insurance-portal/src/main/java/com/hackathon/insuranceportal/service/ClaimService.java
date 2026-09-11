@@ -78,7 +78,7 @@ public class ClaimService {
                     .claimId(claimId)
                     .eventType("CLAIM_TRACKING")
                     .stage("CLAIM_TRACKING")
-                    .status("FAILED")
+                    .status("WARNING")
                     .durationMs(System.currentTimeMillis() - start)
                     .error("CLAIM_NOT_FOUND")
                     .extra("message", "Claim status fetch failed"));

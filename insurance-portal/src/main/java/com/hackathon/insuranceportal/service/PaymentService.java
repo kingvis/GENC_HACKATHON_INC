@@ -70,7 +70,7 @@ public class PaymentService {
                     .claimId(null)
                     .eventType("Payment Failed")
                     .stage("PREMIUM_COLLECTION")
-                    .status("FAILED")
+                    .status("WARNING")
                     .durationMs(System.currentTimeMillis() - start)
                     .error("Transaction Error")
                     .extra("payment_id", saved.getPaymentId())

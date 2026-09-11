@@ -1,7 +1,10 @@
 package com.hackathon.insuranceportal;
 
+import com.hackathon.insuranceportal.alerting.AlertingProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * Entry point for the Insurance Portal prototype.
@@ -10,8 +13,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  *   mvn spring-boot:run
  *
  * Once started, the application is available at http://localhost:8080
+ *
+ * {@code @EnableScheduling} turns on the fixed-interval error-log scan in the
+ * {@code alerting} package (see AlertScheduler).
  */
 @SpringBootApplication
+@EnableScheduling
+@EnableConfigurationProperties(AlertingProperties.class)
 public class InsurancePortalApplication {
 
     public static void main(String[] args) {

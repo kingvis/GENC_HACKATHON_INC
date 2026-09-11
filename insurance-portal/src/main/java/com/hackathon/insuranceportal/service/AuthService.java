@@ -90,7 +90,7 @@ public class AuthService {
                     .customerId(customerId)
                     .eventType("LOGIN")
                     .stage("LOGIN")
-                    .status("FAILED")
+                    .status("WARNING")
                     .durationMs(System.currentTimeMillis() - start)
                     .error("INVALID_CREDENTIALS")
                     .extra("session_id", (Object) null)
