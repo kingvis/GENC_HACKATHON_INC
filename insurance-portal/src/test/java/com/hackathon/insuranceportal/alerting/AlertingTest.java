@@ -162,16 +162,16 @@ class AlertingTest {
         WarningAggregator agg = new WarningAggregator(propsFor(dir.resolve("app.log")));
         LocalDate day = LocalDate.of(2026, 9, 11);
 
-        WarningAggregator.WarningCheck c1 = agg.addAndCheck(day, nWarnings(9), 10);
+        ThresholdAggregator.Check c1 = agg.addAndCheck(day, nWarnings(9), 10);
         assertFalse(c1.triggered(), "9 < 10 -> no email");
         assertEquals(9, c1.bufferedAfter());
 
-        WarningAggregator.WarningCheck c2 = agg.addAndCheck(day, nWarnings(1), 10);
+        ThresholdAggregator.Check c2 = agg.addAndCheck(day, nWarnings(1), 10);
         assertTrue(c2.triggered(), "reaching 10 fires the report");
         assertEquals(10, c2.batch().size(), "the whole accumulated batch is emailed");
         assertEquals(0, c2.bufferedAfter(), "buffer cleared after firing");
 
-        WarningAggregator.WarningCheck c3 = agg.addAndCheck(day, nWarnings(1), 10);
+        ThresholdAggregator.Check c3 = agg.addAndCheck(day, nWarnings(1), 10);
         assertFalse(c3.triggered(), "counting starts fresh for the next batch");
         assertEquals(1, c3.bufferedAfter());
     }
@@ -181,7 +181,7 @@ class AlertingTest {
         WarningAggregator agg = new WarningAggregator(propsFor(dir.resolve("app.log")));
 
         agg.addAndCheck(LocalDate.of(2026, 9, 11), nWarnings(7), 10);
-        WarningAggregator.WarningCheck next = agg.addAndCheck(LocalDate.of(2026, 9, 12), nWarnings(2), 10);
+        ThresholdAggregator.Check next = agg.addAndCheck(LocalDate.of(2026, 9, 12), nWarnings(2), 10);
 
         assertFalse(next.triggered());
         assertEquals(2, next.bufferedAfter(), "a new day resets yesterday's count");
@@ -199,6 +199,40 @@ class AlertingTest {
         assertTrue(html.contains("Warning Report"), "warning report title");
         assertTrue(html.contains("INVALID_CREDENTIALS"), "warning detail shown");
         assertTrue(html.contains("#b45309"), "amber accent for warnings");
+    }
+
+    @Test
+    void errorReportOnlyFiresOnceTenErrorsAccumulate(@TempDir Path dir) {
+        ErrorAggregator agg = new ErrorAggregator(propsFor(dir.resolve("app.log")));
+        LocalDate day = LocalDate.of(2026, 9, 15);
+
+        assertFalse(agg.addAndCheck(day, nErrors(9), 10).triggered(), "9 < 10 -> no error report yet");
+        ThresholdAggregator.Check fire = agg.addAndCheck(day, nErrors(1), 10);
+        assertTrue(fire.triggered(), "reaching 10 errors fires the Error Report");
+        assertEquals(10, fire.batch().size(), "all 10 accumulated errors are in the batch");
+        assertEquals(0, fire.bufferedAfter(), "buffer cleared after firing");
+    }
+
+    @Test
+    void warningAndErrorAggregatorsUseSeparateState(@TempDir Path dir) {
+        Path log = dir.resolve("app.log");
+        WarningAggregator warns = new WarningAggregator(propsFor(log));
+        ErrorAggregator errors = new ErrorAggregator(propsFor(log));
+
+        // 9 of each on the same day: neither should fire, and they must not
+        // pollute each other's count (separate sidecar files).
+        assertFalse(warns.addAndCheck(LocalDate.of(2026, 9, 15), nWarnings(9), 10).triggered());
+        assertFalse(errors.addAndCheck(LocalDate.of(2026, 9, 15), nErrors(9), 10).triggered());
+        assertEquals(9, errors.addAndCheck(LocalDate.of(2026, 9, 15), List.of(), 10).bufferedAfter());
+    }
+
+    private List<ErrorEvent> nErrors(int n) {
+        List<ErrorEvent> list = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            list.add(new ErrorEvent("2026-09-15T10:00:00Z", "PaymentService", "Gateway Timeout",
+                    "PREMIUM_COLLECTION", "ERROR", "Gateway Timeout", "C" + i, "payment-app-02"));
+        }
+        return list;
     }
 
     private ErrorEvent warn(String service, String error) {

@@ -64,6 +64,14 @@ public class AlertingProperties {
     private int warningThreshold = 10;
 
     /**
+     * System-failure threshold. Infrastructure errors are also accumulated per
+     * calendar date; when a date's running count reaches this many, an
+     * escalation "System Failure" report is emailed (in addition to the normal
+     * per-scan error report). Default 10. Set to 11 for strictly "more than 10".
+     */
+    private int errorThreshold = 10;
+
+    /**
      * Hackathon fault simulator: when true, a scheduler periodically writes one
      * of the {@link #errorTypes} to the log so the scan+mail cycle has real
      * infrastructure errors to report. Turn off in a "clean" demo.
@@ -105,6 +113,9 @@ public class AlertingProperties {
 
     public int getWarningThreshold() { return warningThreshold; }
     public void setWarningThreshold(int warningThreshold) { this.warningThreshold = warningThreshold; }
+
+    public int getErrorThreshold() { return errorThreshold; }
+    public void setErrorThreshold(int errorThreshold) { this.errorThreshold = errorThreshold; }
 
     public boolean isFaultInjectionEnabled() { return faultInjectionEnabled; }
     public void setFaultInjectionEnabled(boolean faultInjectionEnabled) { this.faultInjectionEnabled = faultInjectionEnabled; }

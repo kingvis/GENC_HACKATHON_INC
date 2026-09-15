@@ -37,7 +37,7 @@ public class ErrorReportBuilder {
     /** A report flavour: its wording and accent colours. */
     private enum Kind {
         ERROR("Error Report", "error", "#c62828", "#fdecea", "#7a1c1c",
-                "new infrastructure error events were found since the last scan."),
+                "the number of infrastructure error events crossed the alert threshold."),
         WARNING("Warning Report", "warning", "#b45309", "#fef3c7", "#7a4a12",
                 "the number of warning events crossed the alert threshold.");
 

@@ -9,12 +9,15 @@ import java.time.ZoneOffset;
 import java.util.List;
 
 /**
- * Orchestrates one alert cycle: scan the log once, then handle two independent
- * outputs from that single pass -
- *   1. infrastructure ERRORS  -> emailed immediately (any count), as before;
- *   2. business WARNINGS       -> accumulated per date and emailed only once the
- *                                 threshold is crossed (see {@link WarningAggregator}).
- * Shared by the scheduler and the on-demand controller so both behave identically.
+ * Orchestrates one alert cycle: scan the log once, then handle two threshold-
+ * gated outputs from that single pass -
+ *   1. infrastructure ERRORS  -> accumulated per date; an Error Report is
+ *                                emailed only once the error threshold is crossed;
+ *   2. business WARNINGS       -> accumulated per date; a Warning Report is
+ *                                emailed only once the warning threshold is crossed.
+ * Both behave identically (see {@link ThresholdAggregator}): no email until at
+ * least N of that kind have piled up, then one batched report with all of them.
+ * Shared by the scheduler and the on-demand controller.
  */
 @Service
 public class AlertService {
@@ -23,17 +26,20 @@ public class AlertService {
 
     private final AlertingProperties props;
     private final LogErrorScanner scanner;
+    private final ErrorAggregator errorAggregator;
     private final WarningAggregator warningAggregator;
     private final ErrorReportBuilder reportBuilder;
     private final ResendEmailClient emailClient;
 
     public AlertService(AlertingProperties props,
                         LogErrorScanner scanner,
+                        ErrorAggregator errorAggregator,
                         WarningAggregator warningAggregator,
                         ErrorReportBuilder reportBuilder,
                         ResendEmailClient emailClient) {
         this.props = props;
         this.scanner = scanner;
+        this.errorAggregator = errorAggregator;
         this.warningAggregator = warningAggregator;
         this.reportBuilder = reportBuilder;
         this.emailClient = emailClient;
@@ -43,57 +49,58 @@ public class AlertService {
     public ScanResult scanAndNotify() {
         if (!props.isEnabled()) {
             log.debug("[alerting] Alerting disabled (alerting.enabled=false) - skipping scan");
-            return new ScanResult(false, 0, false, 0, 0, false, "alerting disabled");
+            return new ScanResult(false, 0, 0, false, 0, 0, false, "alerting disabled");
         }
 
         ScanFindings findings = scanner.scan();
         List<ErrorEvent> errors = findings.errors();
         List<ErrorEvent> warnings = findings.warnings();
 
-        boolean errorEmailed = handleErrors(errors);
-        WarningOutcome warn = handleWarnings(warnings);
+        Outcome err = handleErrors(errors);
+        Outcome warn = handleWarnings(warnings);
 
-        String detail = errors.size() + " error(s) [email " + (errorEmailed ? "sent" : "not sent") + "]; "
-                + warnings.size() + " new warning(s), " + warn.buffered + " buffered"
-                + (warn.emailed ? " [warning report sent]" : "");
+        String detail = errors.size() + " new error(s), " + err.buffered + "/" + props.getErrorThreshold()
+                + " buffered" + (err.emailed ? " [error report sent]" : "") + "; "
+                + warnings.size() + " new warning(s), " + warn.buffered + "/" + props.getWarningThreshold()
+                + " buffered" + (warn.emailed ? " [warning report sent]" : "");
         log.info("[alerting] {}", detail);
-        return new ScanResult(true, errors.size(), errorEmailed,
+        return new ScanResult(true, errors.size(), err.buffered, err.emailed,
                 warnings.size(), warn.buffered, warn.emailed, detail);
     }
 
-    /** Mails infrastructure errors immediately (unchanged behaviour). */
-    private boolean handleErrors(List<ErrorEvent> errors) {
-        if (errors.isEmpty()) {
-            log.info("[alerting] Scan complete - no new error events found");
-            if (props.isSkipEmailWhenNoErrors()) {
-                return false;
-            }
-            return emailClient.send("[Insurance Portal] No new error events",
-                    "<p>No new error events since the last scan.</p>");
+    /** Accumulates errors per date; mails an Error Report only when the threshold is crossed. */
+    private Outcome handleErrors(List<ErrorEvent> errors) {
+        ThresholdAggregator.Check check = errorAggregator.addAndCheck(
+                LocalDate.now(ZoneOffset.UTC), errors, props.getErrorThreshold());
+        if (!check.triggered()) {
+            return new Outcome(false, check.bufferedAfter());
         }
-        return emailClient.send(reportBuilder.subject(errors), reportBuilder.buildHtml(errors));
+        boolean sent = emailClient.send(
+                reportBuilder.subject(check.batch()),
+                reportBuilder.buildHtml(check.batch()));
+        return new Outcome(sent, 0);
     }
 
-    /** Accumulates warnings; mails a Warning Report only when the threshold is crossed. */
-    private WarningOutcome handleWarnings(List<ErrorEvent> warnings) {
-        WarningAggregator.WarningCheck check = warningAggregator.addAndCheck(
+    /** Accumulates warnings per date; mails a Warning Report only when the threshold is crossed. */
+    private Outcome handleWarnings(List<ErrorEvent> warnings) {
+        ThresholdAggregator.Check check = warningAggregator.addAndCheck(
                 LocalDate.now(ZoneOffset.UTC), warnings, props.getWarningThreshold());
-
         if (!check.triggered()) {
-            return new WarningOutcome(false, check.bufferedAfter());
+            return new Outcome(false, check.bufferedAfter());
         }
         boolean sent = emailClient.send(
                 reportBuilder.warningSubject(check.batch()),
                 reportBuilder.buildWarningHtml(check.batch()));
-        return new WarningOutcome(sent, 0);
+        return new Outcome(sent, 0);
     }
 
-    private record WarningOutcome(boolean emailed, int buffered) {
+    private record Outcome(boolean emailed, int buffered) {
     }
 
     /** Outcome of a single scan cycle - returned to the HTTP caller as JSON. */
     public record ScanResult(boolean scanned,
                              int errorCount,
+                             int errorsBuffered,
                              boolean errorEmailSent,
                              int warningCount,
                              int warningsBuffered,
